@@ -3,9 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-// #include <numeric>
-// #include <vector>
-// #include <string>
 
 using namespace std;
 

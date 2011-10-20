@@ -1,10 +1,4 @@
 #include <iostream>
-// #include <fstream>
-#include <string>
-// #include <cstdlib>
-// #include <vector>
-//#include <numeric>
-
 #include "Array3D.h"
 #include "vtkData.h"
 
