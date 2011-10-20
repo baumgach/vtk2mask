@@ -2,9 +2,15 @@
 #include <iostream>
 #include <fstream>
 
-vtkData::LoadFile(string filename) {
+using namespace std;
+
+void vtkData::doNothing(int n) {
+  ++n;
+}
+
+void vtkData::LoadFile(const std::string & filename) {
   
-  ifstream vtkFile ("Qw_opt_1t_sm.vtk");
+  ifstream vtkFile (filename);
   if (!vtkFile.is_open()) { cout << "Couldn't open file"; exit(1); }
   
   string sHeader;
@@ -20,11 +26,6 @@ vtkData::LoadFile(string filename) {
   if (sHeader != "# vtk DataFile Version 3.0") { cout << "Wrong File Type"; exit(1); }
   if (sDataFormat != "ASCII") { cout << "Wrong Data Type"; exit(1); }
   if (sDataType != "DATASET POLYDATA") { cout << "Wrong Topology"; exit(1); }
-  
-  vector<double> 	vecFA;
-  vector<double> 	vecFreeWater;
-  vector<string> 	vecNames;
-  vector<d3DPoint> 	vecPoints;
   
   // some temp strings
   string x,y,z,curr;
@@ -59,7 +60,8 @@ vtkData::LoadFile(string filename) {
 // 	myfile >> curr;
 //       // use later to calculate trace and whatnot
 //     }
-      
+    
+    // LOADING FIELDS
     if (curr == "FA") {
       myfile >> curr; // 1
       myfile >> curr; // nDataSize

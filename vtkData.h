@@ -10,14 +10,15 @@ inline d3DPoint dMake3DPoint(double x, double y, double z) {
   return m;
 }
 
+
 class vtkData {
   
   private:
-    vector<Point3D> 		_vPoints; 
-    vector<vector<double> > 	_vFields;
-    vector<string> 		_vFieldNames;
-    int 			_nNumOfFields;
-    int				_nDataSize;
+    std::vector<d3DPoint>	 	_vPoints; 
+    std::vector<std::vector<float> > 	_vFields;
+    std::vector<std::string> 		_vFieldNames;
+    int 				_nNumOfFields;
+    int					_nDataSize;
     
   public:
     vtkData() {
@@ -25,12 +26,13 @@ class vtkData {
     };
     ~vtkData() { };
     
-    LoadFile(string fn);
+    void LoadFile(const std::string & fn);
+    void doNothing(int a);
     
     // getters
-    vector<Point3D> Points();
-    vector<vector<double> > Fields();
-    vector<string> FieldNames();
+    std::vector<d3DPoint> Points() { return _vPoints; }
+    std::vector<std::vector<float> > Fields();
+    std::vector<std::string> FieldNames();
     int NumOfFields();
 
 };
