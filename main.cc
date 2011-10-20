@@ -1,4 +1,4 @@
-// #include <iostream>
+#include <iostream>
 // #include <fstream>
 #include <string>
 // #include <cstdlib>
@@ -14,10 +14,13 @@ int main() {
   
   
   vtkData data;
-//   data.LoadFile("Qw_opt_1t_sm.vtk");
+  data.LoadFile("Qw_opt_1t_sm.vtk");
   data.doNothing(2);
   
- // vector<d3DPoint> test = data.Points();
+  vector<d3DPoint> test = data.Points();
+  
+  for (int i = 0; i < 30; i++) 
+    cout << test[i]._[0] << " ";
   
   // CONVERSION STUFF 
 
