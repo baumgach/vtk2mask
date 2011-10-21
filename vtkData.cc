@@ -6,14 +6,10 @@
 
 using namespace std;
 
-void vtkData::doNothing(int n) {
-  ++n;
-}
-
-void vtkData::LoadFile(const std::string & filename) {
+bool vtkData::LoadFile(const std::string & filename) {
   
   ifstream vtkFile (&filename[0]);
-  if (!vtkFile.is_open()) { cout << "Couldn't open file"; exit(1); }
+  if (!vtkFile.is_open()) { cout << "Couldn't open file"; return 1; }
   
   string sHeader;
   string sTitle;
@@ -25,9 +21,9 @@ void vtkData::LoadFile(const std::string & filename) {
   getline (vtkFile, sDataFormat);
   getline (vtkFile, sDataType);
   
-  if (sHeader != "# vtk DataFile Version 3.0") { cout << "Wrong File Type"; exit(1); }
-  if (sDataFormat != "ASCII") { cout << "Wrong Data Type"; exit(1); }
-  if (sDataType != "DATASET POLYDATA") { cout << "Wrong Topology"; exit(1); }
+  if (sHeader != "# vtk DataFile Version 3.0") { cout << "Wrong File Type"; return 1; }
+  if (sDataFormat != "ASCII") { cout << "Wrong Data Type"; return 1; }
+  if (sDataType != "DATASET POLYDATA") { cout << "Wrong Topology"; return 1; }
   
   cout << "Loading " << sTitle << "...\n";
   
@@ -59,7 +55,7 @@ void vtkData::LoadFile(const std::string & filename) {
 //     }
 //     if (curr == "Tensor1") {
 //       vtkFile >> curr;
-//       if (curr != "float") { cout << "Script expects tensor data to be of type float"; exit(1); }
+//       if (curr != "float") { cout << "Script expects tensor data to be of type float"; return 1; }
 //       for (int i=0; i<nDataSize*9; ++i)
 // 	vtkFile >> curr;
 //       // use later to calculate trace and whatnot
@@ -69,9 +65,9 @@ void vtkData::LoadFile(const std::string & filename) {
     if (curr == "FA") {
       vtkFile >> curr; // 1
       vtkFile >> curr; // nDataSize
-      if (atof(&curr[0]) != _nDataSize) { cout << "The FA Data has the wrong dimensions"; exit(1); }
+      if (atof(&curr[0]) != _nDataSize) { cout << "The FA Data has the wrong dimensions"; return 1; }
       vtkFile >> curr; // data type, should contain float but who cares
-      if (curr != "float") { cout << "Script expects FA to be of type float"; exit(1); }
+      if (curr != "float") { cout << "Script expects FA to be of type float"; return 1; }
       _vFields.resize(nFieldCounter+1);
       for (int i=0; i<_nDataSize; ++i) {
 	vtkFile >> curr;
@@ -83,9 +79,9 @@ void vtkData::LoadFile(const std::string & filename) {
     if (curr == "FreeWater") {
       vtkFile >> curr; // 1
       vtkFile >> curr; // nDataSize
-      if (atof(&curr[0]) != _nDataSize) { cout << "The FreeWater Data has the wrong dimensions"; exit(1); }
+      if (atof(&curr[0]) != _nDataSize) { cout << "The FreeWater Data has the wrong dimensions"; return 1; }
       vtkFile >> curr; // data type, should contain float but who cares
-      if (curr != "float") { cout << "Script expects FreeWater to be of type float"; exit(1); }
+      if (curr != "float") { cout << "Script expects FreeWater to be of type float"; return 1; }
       _vFields.resize(nFieldCounter+1);
       for (int i=0; i<_nDataSize; ++i) {
 	vtkFile >> curr;
@@ -99,5 +95,7 @@ void vtkData::LoadFile(const std::string & filename) {
   _nNumOfFields = nFieldCounter;
   
   vtkFile.close();
+  
+  return 0;
   
 }

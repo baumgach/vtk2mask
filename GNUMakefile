@@ -1,0 +1,74 @@
+DEBUG = no
+PROF = no
+
+CC = g++
+CMAKE = cmake
+
+VXLSRC = libs/InsightToolkit-3.20.0/Utilities/vxl
+
+##CLP_INCLUDE_DIRS = -Ilibs/InsightToolkit-3.20.0/Utilities -Ilibs/tclap/include -Ilibs/ModuleDescriptionParser
+ITK_INCLUDE_DIRS = -I$(VXLSRC)/core -I$(VXLSRC)/vcl -I$(VXLSRC)/v3p/netlib
+TEEM_INCLUDE_DIRS = -Ilibs/teem-1.10.0/include
+TEEM_LINK_DIRS = -Llibs/teem-1.10.0/bin
+##BOOST_INCLUDE_DIRS = -Ilibs/boost_1_46_1/include
+##BOOST_LINK_DIRS = -Llibs/boost_1_46_1/lib
+ITK_LINK_DIRS = -Llibs/InsightToolkit-3.20.0/bin/
+
+ifeq ($(PROF), yes)
+	PROF_FLAG = -pg		# Generate profile info for gprof
+else
+	PROF_FLAG =
+endif
+
+ifeq ($(DEBUG), yes)
+	DEBUG_FLAG = -g
+else
+	DEBUG_FLAG = -O3 -DNDEBUG
+endif
+
+CXXFLAGS = -floop-interchange -c -Wall -ansi $(PROF_FLAG) $(DEBUG_FLAG) $(ITK_INCLUDE_DIRS) $(TEEM_INCLUDE_DIRS)
+
+LDFLAGS = -lbz2 -litkvnl_algo -litkvnl -litkvcl  -litkv3p_lsqr -litkv3p_netlib  -lteem -lpng -lgfortran -lpthread -lz
+
+CMAKE_COMMON_ENTRIES = -D BUILD_SHARED_LIBS=OFF -D CMAKE_BUILD_TYPE=Release -D BUILD_EXAMPLES=OFF -D BUILD_TESTING=OFF
+
+SOURCES = $(wildcard *.cc)
+OBJECTS = $(SOURCES:.cc=.o)
+EXECUTABLE = vtk2mask
+
+$(EXECUTABLE): $(OBJECTS)	# OK to apply implicit rule here, although no include directory should be: -I dirs are ignored if do not exist
+	$(CC) $(PROF_FLAG) $(DEBUG_FLAG) $(OBJECTS) $(LDFLAGS) -o $@
+
+%.o : %.cc %.h
+	$(CC) $(CXXFLAGS) $< -o $@
+
+# main.o : main.cc Interface.xml
+# 	libs/GenerateCLP/GenerateCLP --InputXML Interface.xml --OutputCxx InterfaceCLP.h
+# 	$(CC) $(CLP_INCLUDE_DIRS) $(CXXFLAGS) $< -o $@
+
+clean:
+	rm -rf *.o $(EXECUTABLE)
+
+libs:
+	tar -zxf libs.tar.gz
+	cd libs/teem-1.10.0 && $(CMAKE) $(CMAKE_COMMON_ENTRIES) . && make
+	cd libs/InsightToolkit-3.20.0 && $(CMAKE) $(CMAKE_COMMON_ENTRIES) . && make
+# 	cd libs/tclap && $(CMAKE) $(CMAKE_COMMON_ENTRIES) .
+# 	cd libs/ModuleDescriptionParser && $(CMAKE) $(CMAKE_COMMON_ENTRIES) -D ITK_DIR=`pwd`/../InsightToolkit-3.20.0 . && make
+# 	cd libs/GenerateCLP && $(CMAKE) $(CMAKE_COMMON_ENTRIES) -D ITK_DIR=`pwd`/../InsightToolkit-3.20.0 -D TCLAP_DIR=`pwd`/../tclap -D ModuleDescriptionParser_DIR=`pwd`/../ModuleDescriptionParser . && make
+	#ln -fs `pwd`/libs/GenerateCLP/GenerateCLP ~/bin/GenerateCLP
+# 	cd libs/boost_1_46_1 && ./bootstrap.sh --prefix=. && ./bjam variant=release link=static threading=multi install
+
+cleanlibs:
+	cd libs/teem-1.10.0 && make clean
+	cd libs/InsightToolkit-3.20.0 && make clean
+# 	cd libs/ModuleDescriptionParser && make clean
+# 	cd libs/GenerateCLP && make clean
+# 	cd libs/boost_1_46_1 && ./bjam --clean install
+
+withlibs: libs manual
+
+manual: $(OBJECTS)
+	$(CC) $(PROF_FLAG) $(DEBUG_FLAG) $(OBJECTS) $(ITK_LINK_DIRS) $(TEEM_LINK_DIRS) $(LDFLAGS) -o $(EXECUTABLE)
+
+.PHONY: libs clean cleanlibs withlibs manual

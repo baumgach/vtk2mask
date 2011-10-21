@@ -1,15 +1,6 @@
 #include <string>
 #include <vector>
-
-// TODO: give d3DPoint a seperat class or something
-
-typedef struct { double _[3]; } d3DPoint;
-
-inline d3DPoint dMake3DPoint(double x, double y, double z) {
-  d3DPoint m = {{x,y,z}};
-  return m;
-}
-
+#include "d3DPoint.h"
 
 class vtkData {
   
@@ -26,13 +17,13 @@ class vtkData {
     };
     ~vtkData() { };
     
-    void LoadFile(const std::string & fn);
-    void doNothing(int a);
+    bool LoadFile(const std::string & fn);
     
     // getters
     std::vector<d3DPoint> Points() { return _vPoints; }
-    std::vector<std::vector<float> > Fields();
-    std::vector<std::string> FieldNames();
-    int NumOfFields();
+    std::vector<float> Fields(int n) { return _vFields[n]; }
+    std::string FieldNames(int n) { return _vFieldNames[n]; }
+    int NumOfFields() { return _nNumOfFields; }
+    int DataSize() { return _nDataSize; }
 
 };

@@ -1,20 +1,41 @@
 #include <iostream>
 #include "Array3D.h"
 #include "vtkData.h"
+#include "nrrdData.h"
+
 
 using namespace std;
 
 int main() {
   
+  string nrrdPath = "/projects/schiz/3Tdata/case01045/diff/01045-dwi-filt-Ed.nhdr";
   
   vtkData data;
+//   data.LoadFile("/projects/schiz/guest/baumgach/ukftractography_freewater/trunk/results/fb_1t_sm_fw.vtk");
   data.LoadFile("Qw_opt_1t_sm.vtk");
-  data.doNothing(2);
   
-  vector<d3DPoint> test = data.Points();
+  cout << "Field Name: " << data.FieldNames(1);
+  vector<float> freewater = data.Fields(1);
   
-  for (int i = 0; i < 30; i++) 
-    cout << test[i]._[0] << " ";
+  float max = -10000;
+  float min = 10000;
+  float avg = 0;
+  
+  for (int i = 0; i < data.DataSize(); ++i) {
+    if (freewater[i] > max) max = freewater[i];
+    if (freewater[i] < min) min = freewater[i];
+    avg += freewater[i];
+  }
+  
+  avg /= data.DataSize();
+  
+  cout << endl;
+  cout << "Max FW: " << max << endl;
+  cout << "Min FW: " << min << endl;
+  cout << "Avg FW: " << avg << endl;
+  
+  nrrdData nerd;
+  nerd.LoadSignal(nrrdPath);
   
   // CONVERSION STUFF 
 
